@@ -1,0 +1,20 @@
+version: 2.1
+
+jobs:
+  test:
+    machine: true
+    environment:
+      TERM: dumb
+    steps:
+      - vm-install-tools/install-java11
+      - vm-install-tools/install-gradle
+      - vm-install-tools/install-docker-compose
+      - run: java --version
+      - run: gradle --version
+      - run: docker-compose --version
+
+workflows:
+  main:
+    jobs:
+      - test:
+          name: build
