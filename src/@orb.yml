@@ -15,7 +15,7 @@ commands:
       - run:
           name: Install java 11
           command: |
-            wget https://download.java.net/java/GA/jdk11/28/GPL/openjdk-11+28_linux-x64_bin.tar.gz -O /tmp/openjdk-11+28_linux-x64_bin.tar.gz
+            wget https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz -O /tmp/openjdk-11+28_linux-x64_bin.tar.gz
             sudo mkdir -p /usr/lib/jvm
             sudo tar xfvz /tmp/openjdk-11+28_linux-x64_bin.tar.gz --directory /usr/lib/jvm
             rm -f /tmp/openjdk-11+28_linux-x64_bin.tar.gz
