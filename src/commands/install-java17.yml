@@ -1,0 +1,5 @@
+description: install openjdk-17
+steps:
+  - run:
+      name: Install java 17
+      command: <<include(scripts/install-java17.sh)>>

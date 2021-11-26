@@ -1,0 +1,5 @@
+description: install docker-compose
+steps:
+  - run:
+      name: Install docker-compose
+      command: <<include(scripts/install-docker-compose.sh)>>

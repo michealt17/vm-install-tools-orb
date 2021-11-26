@@ -1,0 +1,5 @@
+description: install openjdk-11
+steps:
+  - run:
+      name: Install java 11
+      command: <<include(scripts/install-java11.sh)>>

@@ -1,50 +1,82 @@
 version: 2.1
 
 orbs:
-  orb-tools: circleci/orb-tools@3.0.0
+  orb-tools: circleci/orb-tools@10.1.0
+  bats: circleci/bats@1.0
+  shellcheck: circleci/shellcheck@2.0
+  vm-install-tools: entur/vm-install-tools@<<pipeline.parameters.dev-orb-version>>
 
-executors:
-  lint-condo:
-    resource_class: small
-    docker:
-      - image: singapore/lint-condo
+parameters:
+  run-integration-tests:
+    description: An internal flag to prevent integration test from running before a development version has been created.
+    type: boolean
+    default: false
+  dev-orb-version:
+    description: >
+      The development version of the orb to test.
+      This value is automatically adjusted by the "trigger-integration-tests-workflow" job to correspond with the specific version created by the commit and should not be edited.
+      A "dev:alpha" version must exist for the initial pipeline run.
+    type: string
+    default: "dev:alpha"
 
 jobs:
-  lint:
-    executor: lint-condo
+  quick-integration-tests:
+    docker:
+      - image: cimg/base:2021.11
     steps:
-      - checkout
-      - run: yamllint .
+      - vm-install-tools/install-java11
+      - run: java --version | grep -q "openjdk 11"
+      - vm-install-tools/install-java17
+      - run: java --version | grep -q "java 17.0.1"
+      - vm-install-tools/install-gradle
+      - run: gradle --version | grep -q "Gradle 5.0"
+      - vm-install-tools/install-docker-compose
+      - run: docker-compose --version | grep -q "docker-compose version 1.23.1"
 
 workflows:
-  verify:
+  test-pack:
+    unless: << pipeline.parameters.run-integration-tests >>
     jobs:
-      - lint
-      - orb-tools/publish:
-          name: publish
+      - orb-tools/lint
+      - orb-tools/pack
+      - shellcheck/check:
+          dir: ./src/scripts
+          exclude: SC2148
+#      - bats/run:
+#          path: ./src/tests
+      - orb-tools/publish-dev:
+          orb-name: entur/vm-install-tools
           context: orb-publishing
-          filters:
-            branches:
-              ignore: master
-          orb-path: src/@orb.yml
-          orb-ref: entur/vm-install-tools@dev:$CIRCLE_BRANCH
-      - orb-tools/test-in-builds:
-          name: test
-          orb-location: src/@orb.yml
-          orb-name: vm-install-tools
-          test-steps:
-            - orb-tools/local-test-build:
-                test-config-location: test/install-test.yml
           requires:
-            - publish
-            - lint
-      - orb-tools/increment:
-          name: release
+            - orb-tools/lint
+            - orb-tools/pack
+#            - bats/run
+            - shellcheck/check
+      - orb-tools/trigger-integration-tests-workflow:
+          name: trigger-integration-dev
           context: orb-publishing
+          requires:
+            - orb-tools/publish-dev
+
+  integration-test_deploy:
+    when: << pipeline.parameters.run-integration-tests >>
+    jobs:
+      - quick-integration-tests
+
+      # Publish a semver version of the orb. relies on
+      # the commit subject containing the text "[semver:patch|minor|major|skip]"
+      # as that will determine whether a patch, minor or major
+      # version will be published or if publishing should
+      # be skipped.
+      # e.g. [semver:patch] will cause a patch version to be published.
+      - orb-tools/dev-promote-prod-from-commit-subject:
+          orb-name: entur/vm-install-tools
+          context: orb-publishing
+          add-pr-comment: false
+          fail-if-semver-not-indicated: true
+          publish-version-tag: false
+          requires:
+            - quick-integration-tests
           filters:
             branches:
               only: master
-          orb-path: src/@orb.yml
-          orb-ref: entur/vm-install-tools
-          requires:
-            - test

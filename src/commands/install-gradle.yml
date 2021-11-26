@@ -1,0 +1,5 @@
+description: install gradle
+steps:
+  - run:
+      name: Install gradle 5.0
+      command: <<include(scripts/install-gradle.sh)>>
