@@ -21,12 +21,12 @@ parameters:
 jobs:
   quick-integration-tests:
     docker:
-      - image: cimg/base:2021.11
+      - image: cimg/base:2023.09
     steps:
       - vm-install-tools/install-java11
       - run: java --version | grep -q "openjdk 11"
       - vm-install-tools/install-java17
-      - run: java --version | grep -q "java 17.0.1"
+      - run: java --version | grep -q "java 17"
       - vm-install-tools/install-gradle
       - run: gradle --version | grep -q "Gradle 5.0"
       - vm-install-tools/install-docker-compose
@@ -43,14 +43,14 @@ workflows:
           exclude: SC2148
       - orb-tools/publish-dev:
           orb-name: entur/vm-install-tools
-          context: global
+          context: orb-publishing
           requires:
             - orb-tools/lint
             - orb-tools/pack
             - shellcheck/check
       - orb-tools/trigger-integration-tests-workflow:
           name: trigger-integration-dev
-          context: global
+          context: orb-publishing
           requires:
             - orb-tools/publish-dev
 
