@@ -1,5 +1,5 @@
 description: install gradle
 steps:
   - run:
-      name: Install gradle 5.0
+      name: Install gradle 8.6
       command: <<include(scripts/install-gradle.sh)>>

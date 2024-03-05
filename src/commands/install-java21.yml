@@ -1,0 +1,5 @@
+description: install openjdk-21
+steps:
+  - run:
+      name: Install java 21
+      command: <<include(scripts/install-java21.sh)>>

@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   orb-tools: circleci/orb-tools@10.1.0
-  shellcheck: circleci/shellcheck@2.0
+  shellcheck: circleci/shellcheck@3.2.0
   vm-install-tools: entur/vm-install-tools@<<pipeline.parameters.dev-orb-version>>
 
 parameters:
@@ -21,14 +21,14 @@ parameters:
 jobs:
   quick-integration-tests:
     docker:
-      - image: cimg/base:2023.09
+      - image: cimg/base:2024.02
     steps:
       - vm-install-tools/install-java11
       - run: java --version | grep -q "openjdk 11"
       - vm-install-tools/install-java17
       - run: java --version | grep -q "java 17"
       - vm-install-tools/install-gradle
-      - run: gradle --version | grep -q "Gradle 5.0"
+      - run: gradle --version | grep -q "Gradle 8.6"
       - vm-install-tools/install-docker-compose
       - run: docker-compose --version | grep -q "docker-compose version 1.23.1"
 

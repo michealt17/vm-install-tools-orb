@@ -33,18 +33,30 @@ commands:
             rm -f /tmp/openjdk-17.tar.gz
             sudo sh -c 'for bin in /usr/lib/jvm/*/bin/*; do update-alternatives --install /usr/bin/$(basename $bin) $(basename $bin) $bin 100; done'
             sudo sh -c 'for bin in /usr/lib/jvm/*/bin/*; do update-alternatives --set $(basename $bin) $bin; done'
+  install-java21:
+    description: install openjdk-21
+    steps:
+      - run:
+          name: Install java 21
+          command: |
+            wget https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz -O /tmp/openjdk-21.tar.gz
+            sudo mkdir -p /usr/lib/jvm
+            sudo tar xfvz /tmp/openjdk-21.tar.gz --directory /usr/lib/jvm
+            rm -f /tmp/openjdk-21.tar.gz
+            sudo sh -c 'for bin in /usr/lib/jvm/*/bin/*; do update-alternatives --install /usr/bin/$(basename $bin) $(basename $bin) $bin 100; done'
+            sudo sh -c 'for bin in /usr/lib/jvm/*/bin/*; do update-alternatives --set $(basename $bin) $bin; done'
   install-gradle:
     description: install gradle
     steps:
       - run:
-          name: Install gradle 5.0
+          name: Install gradle 8.6
           command: |
-            wget https://services.gradle.org/distributions/gradle-5.0-bin.zip -O /tmp/gradle-bin.zip
+            wget https://services.gradle.org/distributions/gradle-8.6-bin.zip -O /tmp/gradle-bin.zip
             sudo mkdir /opt/gradle
             sudo unzip -d /opt/gradle /tmp/gradle-bin.zip
             rm -f /tmp/gradle-bin.zip
-            sudo sh -c 'for bin in /opt/gradle/gradle-5.0/bin/*; do update-alternatives --install /usr/bin/$(basename $bin) $(basename $bin) $bin 100; done'
-            sudo sh -c 'for bin in /opt/gradle/gradle-5.0/bin/*; do update-alternatives --set $(basename $bin) $bin; done'
+            sudo sh -c 'for bin in /opt/gradle/gradle-8.6/bin/*; do update-alternatives --install /usr/bin/$(basename $bin) $(basename $bin) $bin 100; done'
+            sudo sh -c 'for bin in /opt/gradle/gradle-8.6/bin/*; do update-alternatives --set $(basename $bin) $bin; done'
   install-docker-compose:
     description: install docker-compose
     steps:
